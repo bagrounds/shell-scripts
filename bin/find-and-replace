@@ -1,0 +1,36 @@
+#!/bin/sh
+# find-and-replace
+#
+# Find all occurances of a pattern within the current directory (recursively)
+# and replace them with something else.
+#
+# Arguments:
+# 1: pattern to find
+# 2: replacement string
+#
+# Examples:
+# $ find-and-replace string-to-find replacement-string
+# $ find-and-replace 'regex\spattern' 'regex-pattern'
+#
+# Dependencies:
+# - grep
+# - xargs
+# - sed
+#
+# Tested on:
+# - Mac OSX 10.10.5
+
+# store command line arguments
+find=$1
+replace=$2
+
+# print message
+echo "replace '$find' with '$replace'"
+
+# use grep to find all files containing string, and sed to find and replace
+# within each file
+grep -rl "$find" ./ | xargs sed -i "" "s/$find/$replace/g"
+
+# exit script gracefully
+exit 0
+
