@@ -1,6 +1,6 @@
 # shell-scripts
 
-Shell shell-scripts for miscellaneous tasks
+Shell scripts for miscellaneous tasks
 
 ## setup
 

@@ -6,7 +6,7 @@ project adheres to [Semantic Versioning](http://semver.org/).
 Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 <br>
 
-#### 0.3.0 - (Unreleased)
+#### 0.4.0 - (Unreleased)
 ##### Added
 * ...
 
@@ -24,6 +24,10 @@ Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 
 ##### Security
 * ...
+
+#### 0.3.0 - (2016-07-13)
+##### Added
+* [remap-caps-to-ctrl](bin/remap-caps-to-ctrl)
 
 #### 0.2.0 - (2016-06-24)
 ##### Added

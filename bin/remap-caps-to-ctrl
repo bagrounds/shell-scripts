@@ -1,0 +1,25 @@
+#!/bin/sh
+# remap-caps-to-ctrl
+#
+# Make the caps lock key function as an additional control key.
+#
+# No arguments
+#
+# Example:
+# $ remap-caps-to-ctrl
+#
+# Dependencies:
+# - setxkbmap
+#
+# Tested on:
+# - Linux Ubuntu 15.10
+
+# print message
+echo 'remapping caps lock key to control'
+
+# remap
+setxkbmap -option 'ctrl:nocaps'
+
+# exit script gracefully
+exit 0
+
