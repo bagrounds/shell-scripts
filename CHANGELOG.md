@@ -6,7 +6,7 @@ project adheres to [Semantic Versioning](http://semver.org/).
 Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 <br>
 
-#### 0.4.0 - (Unreleased)
+#### 0.5.0 - (Unreleased)
 ##### Added
 * ...
 
@@ -24,6 +24,11 @@ Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 
 ##### Security
 * ...
+
+#### 0.4.0 - (2016-07-21)
+##### Added
+* remap-caps-to-control
+  * command line parameter '--undo' resets the keyboard
 
 #### 0.3.0 - (2016-07-13)
 ##### Added

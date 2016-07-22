@@ -1,18 +1,34 @@
 #!/bin/sh
 # remap-caps-to-ctrl
 #
-# Make the caps lock key function as an additional control key.
+# Make the caps lock key function as an additional control key, or reset the
+# key mappings.
 #
-# No arguments
+# Arguments:
+# "--undo" will reset the keyboard settings
 #
-# Example:
-# $ remap-caps-to-ctrl
+# Examples:
+# $ remap-caps-to-ctrl # now caps lock is a control key
+# $ remap-caps-to-ctrl --undo # back to normal!
 #
 # Dependencies:
 # - setxkbmap
 #
 # Tested on:
 # - Linux Ubuntu 15.10
+
+# if the first command line argument equals '--undo'
+if [ "$1" = "--undo" ]
+  then
+    #print message
+    echo 'resetting key mappings'
+
+    # reset key mappings
+    setxkbmap -option
+
+    # exit script gracefully
+    exit 0
+fi
 
 # print message
 echo 'remapping caps lock key to control'
