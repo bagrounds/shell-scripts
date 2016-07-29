@@ -25,6 +25,13 @@ Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 ##### Security
 * ...
 
+#### 0.4.1 - (2016-07-28)
+##### Added
+* Detailed comments
+
+##### Fixed
+* Bug causing script to fail on Ubuntu
+
 #### 0.4.0 - (2016-07-21)
 ##### Added
 * remap-caps-to-control

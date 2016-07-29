@@ -18,7 +18,7 @@
 # - sed
 #
 # Tested on:
-# - Mac OSX 10.10.5
+# - Ubuntu 16.04
 
 # store command line arguments
 find=$1
@@ -27,9 +27,15 @@ replace=$2
 # print message
 echo "replace '$find' with '$replace'"
 
-# use grep to find all files containing string, and sed to find and replace
-# within each file
-grep -rl "$find" ./ | xargs sed -i "" "s/$find/$replace/g"
+# grep searches each file in ./ (current directory)
+# -r tells grep to search recursively (through sub directories)
+# -l tells grep to only output the names of the files that contain $find
+# | pipes grep's output (file names) into xargs
+# xargs uses these file names as extra command line parameters for sed
+# sed performs find and replace within each file
+# -e is followed by the find and replace expression
+# -i tells sed to perform the find and replace in-place, changing the files
+grep -rl "$find" ./ | xargs sed -e "s/$find/$replace/g" -i
 
 # exit script gracefully
 exit 0
