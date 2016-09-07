@@ -1,0 +1,24 @@
+#!/bin/bash
+# get-ip-by-hostname
+#
+# Dependencies:
+# - nmap
+# - ip
+# - sed
+#
+# Tested on:
+# - Linux Ubuntu 16.04
+
+REGEX_GATEWAY_IP="s/default via ([0-9.]+).*/\1/p"
+REGEX_HOST_IP="s/^.*?$1 \(([0-9.]+)\)/\1/p"
+
+nmap -sP \
+  $(
+    ip r | \
+    sed -En "$REGEX_GATEWAY_IP" \
+  )/24 | \
+  sed -En "$REGEX_HOST_IP"
+
+# exit script gracefully
+exit 0
+
