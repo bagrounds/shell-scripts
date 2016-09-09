@@ -1,0 +1,47 @@
+#!/bin/bash
+# toggle-touchpad
+#
+# Toggle the touchpad on or off.
+#
+# Examples:
+# $ toggle-touchpad # If touchpad was [on/off] it's now [off/on]
+#
+# Dependencies:
+# - synclient
+# - grep
+#
+# Tested on:
+# - Linux Ubuntu 16.04
+
+# List values with synclient, keep line containing 'TouchpadOff'
+value="$(synclient -l | grep TouchpadOff)"
+
+# If on, the line will look like "TouchpadOff = 0"
+regexOn="TouchpadOff *= *0"
+
+# If off, the line will look like "TouchpadOff = 1"
+regexOff="TouchpadOff *= *1"
+
+# if the line we pulled from synclient matches our regexOn
+if [[ $value =~ $regexOn ]]
+  then
+    echo "turning touchpad off"
+    
+    # turn touchpad off
+    synclient TouchpadOff=1
+
+  # if the line we pulled from synclient matches our regexOff
+  elif [[ $value =~ $regexOff ]]
+  then
+    echo "turning touchpad on"
+
+    # turn touchpad on
+    synclient TouchpadOff=0
+
+  else
+    # if it's not on or off...?
+    echo "I'm confused"
+fi
+
+# exit script gracefully
+exit 0

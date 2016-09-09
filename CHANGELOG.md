@@ -6,7 +6,7 @@ project adheres to [Semantic Versioning](http://semver.org/).
 Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 <br>
 
-#### 0.6.0 - (Unreleased)
+#### 0.7.0 - (Unreleased)
 ##### Added
 * ...
 
@@ -24,6 +24,10 @@ Please use: Added, Changed, Deprecated, Removed, Fixed, or Security as labels.
 
 ##### Security
 * ...
+
+#### 0.6.0 - (2016-09-09)
+##### Added
+* toggle-touchpad
 
 #### 0.5.0 - (2016-09-06)
 ##### Added
