@@ -1,0 +1,14 @@
+#!/bin/sh
+
+mkdir -p ~/screenshot
+
+cd ~/screenshot
+
+filename="$(date +%s)-screenshot.png"
+
+xwd | convert - $filename
+
+echo "screenshot saved as $filename"
+
+exit 0
+
