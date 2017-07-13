@@ -1,0 +1,11 @@
+#/bin/sh
+
+~/bin/set-path
+~/bin/remap-caps-to-ctrl
+
+xrdb -load ~/.Xdefaults
+
+xrandr --output VGA1 --mode 1920x1080 && \
+xrandr --output LVDS1 --mode 1366x768 --below VGA1
+
+exit 0
