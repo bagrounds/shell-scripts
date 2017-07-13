@@ -1,0 +1,9 @@
+#!/bin/sh
+
+xrandr --display :0 --output VGA1 --off
+
+xsetwacom -d :0 set 11 MapToOutput LVDS1
+xsetwacom -d :0 set 12 MapToOutput LVDS1
+xsetwacom -d :0 set 16 MapToOutput LVDS1
+
+exit 0

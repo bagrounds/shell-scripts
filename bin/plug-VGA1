@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#xrandr --display :0 --output VGA1 --mode 1920x1080 && xrandr --display :0 --output LVDS1 --mode 1366x768 --below VGA1
+xrandr --auto
+
+xsetwacom -d :0 set 11 MapToOutput LVDS1
+xsetwacom -d :0 set 12 MapToOutput LVDS1
+xsetwacom -d :0 set 16 MapToOutput LVDS1
+
+exit 0
+
