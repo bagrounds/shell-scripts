@@ -1,0 +1,7 @@
+#!/bin/sh
+
+amixer get Master \
+| sed -rn 's/^.*\[([0-9]{1,2}%)\].*\[(o(n|ff))\].*$/\2 \1/p; /[0-9][0-9]%/q' \
+| sed 's/on/♪/' \
+| sed 's/off/∅/'
+
