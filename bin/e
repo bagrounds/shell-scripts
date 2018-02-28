@@ -1,0 +1,4 @@
+#!/bin/sh
+
+pgrep emacs || emacs --daemon && emacsclient -nw $@
+
