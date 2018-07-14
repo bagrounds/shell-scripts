@@ -1,0 +1,64 @@
+#!/bin/bash
+set -ue
+
+prep_chrome () {
+  wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+  echo "deb http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+}
+
+install_git_repo () {
+  local remote_path=$1
+  local base_dir="${HOME}/Projects"
+  local full_path="${base_dir}/${remote_path}"
+
+  [ -d "$full_path" ] || git clone "https://${remote_path}" "${full_path}"
+}
+
+set_shell () {
+  echo "$SHELL" | grep 'zsh' || chsh -s $(which zsh)
+  
+  curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
+}
+
+link_configs () {
+  local XMONAD_HOME="${HOME}/.xmonad"
+  local DEV_TOOLS="${HOME}/Projects/github.com/bagrounds/dev-tools-configs"
+  mkdir -p "$XMONAD_HOME"
+
+  ln -fs "${DEV_TOOLS}/.packages" "$HOME"
+  ln -fs "${DEV_TOOLS}/xmonad.hs" "$XMONAD_HOME"
+  ln -fs "${DEV_TOOLS}/.Xdefaults" "$HOME"
+  ln -fs "${DEV_TOOLS}/.xmobarrc" "$HOME"
+  ln -fs "${DEV_TOOLS}/.tmux.conf" "$HOME"
+  ln -fs "${DEV_TOOLS}/.stalonetrayrc" "$HOME"
+}
+
+link_scripts () {
+  local bin="${HOME}/bin"
+  local scripts="${HOME}/Projects/github.com/bagrounds/shell-scripts/bin"
+  mkdir -p $bin
+
+  ln -fs "${scripts}/setup" "$bin"
+  ln -fs "${scripts}/remap-caps-to-ctrl" "$bin"
+  ln -fs "${scripts}/set-path" "$bin"
+  ln -fs "${scripts}/volume" "$bin"
+}
+
+main () {
+  prep_chrome
+  sudo apt-get update
+  sudo apt-get install -y $(< "${HOME}/.packages")
+
+  set_shell
+  
+  mkdir -p "${HOME}/Projects/github.com/bagrounds"
+  
+  install_git_repo 'github.com/bagrounds/dev-tools-configs'
+  link_configs
+
+  install_git_repo 'github.com/bagrounds/shell-scripts'
+  link_scripts
+}
+
+main
+
