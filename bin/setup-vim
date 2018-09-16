@@ -1,0 +1,45 @@
+#!/bin/bash
+set -eu
+
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH:=${HOME}/lib}"
+
+source "${LD_LIBRARY_PATH}/fun.bash"
+
+VIM_PATH="${HOME}/.vim"
+
+clone_repo () {
+  local remote_path=$1
+  echo "cloning $remote_path"
+
+  local base_dir="${HOME}/Projects"
+  local full_path="${base_dir}/${remote_path}"
+
+  [ -d "$full_path" ] || git clone "https://${remote_path}" "${full_path}"
+}
+
+link_repo () {
+  local project_path=$1
+  local plugin_path="${VIM_PATH}/bundle"
+
+  echo "linking $project_path"
+
+  mkdir -p "$plugin_path"
+
+  ln -fs "${HOME}/Projects/${project_path}" "$plugin_path"
+}
+
+install () { both clone_repo link_repo $1; }
+
+main () {
+  echo 'installing pathogen'
+  curl -LSso "${VIM_PATH}/autoload/pathogen.vim" 'https://tpo.pe/pathogen.vim'
+   
+  install 'github.com/altercation/vim-colors-solarized'
+  install 'github.com/vim-syntastic/syntastic'
+
+  echo 'result:'
+  tree "$VIM_PATH"
+}
+
+main
+
