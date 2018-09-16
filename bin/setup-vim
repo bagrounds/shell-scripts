@@ -36,6 +36,7 @@ main () {
    
   install 'github.com/altercation/vim-colors-solarized'
   install 'github.com/vim-syntastic/syntastic'
+  install 'github.com/idris-hackers/idris-vim'
 
   echo 'result:'
   tree "$VIM_PATH"
