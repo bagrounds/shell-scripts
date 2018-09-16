@@ -1,0 +1,5 @@
+#!/bin/bash
+set -ue
+
+curl -sSL https://get.haskellstack.org/ | sh
+
