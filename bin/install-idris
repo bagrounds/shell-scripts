@@ -1,0 +1,31 @@
+#!/bin/bash
+set -eu
+
+clone_repo () {
+  local remote_path=$1
+  echo "cloning $remote_path"
+
+  local base_dir="${HOME}/Projects"
+  local full_path="${base_dir}/${remote_path}"
+
+  [ -d "$full_path" ] || git clone "https://${remote_path}" "${full_path}"
+}
+
+main () {
+  local idris_path='github.com/idris-lang/Idris-dev'
+
+  mkdir -p "${HOME}/.local"
+  ln -fs "${HOME}/bin" "${HOME}/.local/"
+
+  clone_repo "$idris_path"
+
+  pushd "${HOME}/Projects/$idris_path"
+
+  stack build
+  stack install
+
+  popd
+}
+
+main
+
