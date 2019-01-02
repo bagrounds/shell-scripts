@@ -1,0 +1,30 @@
+#!/bin/bash
+set -ue
+
+host_from_remote_path () {
+  echo "$1" | awk -F ':' '{ print $1 }'
+}
+
+copy_to () {
+  local local_path="$1"
+  local remote_path="$2"
+  local remote_host="$(host_from_remote_path $remote_path)"
+
+  scp -o ProxyCommand="ssh ${JUMP_HOST} -W ${remote_host}:22" "$local_path" "$remote_path"
+}
+
+copy_from () {
+  local remote_path="$1"
+  local local_path="$2"
+  local remote_host="$(host_from_remote_path $remote_path)"
+
+  scp -o ProxyCommand="ssh ${JUMP_HOST} -W ${remote_host}:22" "$remote_path" "$local_path"
+}
+
+main () {
+  test -f "$1" && copy_to "$1" "$2" || copy_from "$1" "$2"
+}
+
+main "$1" "$2"
+
+
