@@ -1,0 +1,17 @@
+#!/bin/bash
+# Adapted from https://keybase.io/docs/the_app/install_linux
+set -eu
+
+main () {
+  local deb_path='/tmp/keybase_amd64.deb'
+
+  curl https://prerelease.keybase.io/keybase_amd64.deb > "$deb_path"
+  # if you see an error about missing `libappindicator1` from the next
+  # command, you can ignore it, as the subsequent command corrects it
+  sudo dpkg -i "$deb_path"
+  sudo apt-get install -f
+  run_keybase
+}
+
+main
+
