@@ -1,0 +1,12 @@
+#!/bin/bash
+set -eu
+
+main () {
+  wget https://packages.erlang-solutions.com/debian/erlang_solutions.asc
+  sudo apt-key add erlang_solutions.asc
+  sudo apt-get update
+  sudo apt-get install -y erlang
+}
+
+main
+
