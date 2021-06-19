@@ -1,14 +1,44 @@
-#!/bin/sh
+#!/usr/bin/env sh
+#
+# screenshot
+#
+# Capture the screen after a click and save it as a png.
+#
+# Examples:
+#   # click on the screen to capture and save to default location
+#   $ screenshot
+#
+#   # click on the screen to capture and save to /my/special/dir
+#   $ SCREENSHOT_DIR=/my/special/dir screenshot
+#
+# Dependencies:
+# - mkdir - make the screenshot directory if it doesn't exist
+# - xwd - capture the screen
+# - imagemagick - convert the captured image to a png
+#
+# Tested on:
+# - Debian GNU/Linux 9.12 (stretch)
 
-mkdir -p ~/screenshot
+# using unset variable causes error; exit script on error
+set -ue
 
-cd ~/screenshot
+# default save locatoin
+: "${SCREENSHOT_DIR:=${HOME}/screenshot}"
 
-filename="$(date +%s)-screenshot.png"
+main () (
+  # make the save directory if it doesn't exist
+  mkdir -p "$SCREENSHOT_DIR"
 
-xwd | convert - $filename
+  # name the output with unix timestamp prefix
+  filename=$(date +%s)-screenshot.png
 
-echo "screenshot saved as $filename"
+  output="${SCREENSHOT_DIR}/${filename}"
 
-exit 0
+  # capture the screen and convert it to a png
+  xwd -screen | convert xwd:- "$output"
+
+  echo "screenshot saved as '$output'"
+)
+
+main
 
