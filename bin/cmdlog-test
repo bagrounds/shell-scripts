@@ -1,0 +1,169 @@
+#!/bin/bash
+#
+# cmdlog-test - Test suite for cmdlog command logging utility
+#
+# Verifies:
+# - Basic command execution and logging
+# - Special character handling in command arguments
+# - Error condition handling
+# - Output capture (stdout/stderr)
+# - YAML formatting and validity
+#
+# All tests run in a temporary directory and clean up after themselves.
+#
+# Development platform:
+# ProductName:    macOS
+# ProductVersion: 14.6.1
+# BuildVersion:   23G93
+# Shell:          GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
+# GNU date:       date (GNU coreutils) 9.5
+#
+# Co-authored by Anthropic's Claude 3.5 Sonnet (2024)
+#
+
+set -euo pipefail
+
+# Configuration
+: "${TEST_DIR:=$(mktemp -d)}"
+: "${REQUIRED_COMMANDS:=cmdlog yq}"
+
+# Output formatting
+: "${COLOR_ERROR:=\\033[0;31m}"
+: "${COLOR_SUCCESS:=\\033[0;32m}"
+: "${COLOR_RESET:=\\033[0m}"
+
+# Test utilities
+cleanup_test_directory() (
+    rm -rf "$TEST_DIR"
+)
+
+verify_required_commands() (
+    local cmd
+    for cmd in $REQUIRED_COMMANDS; do
+        if ! command -v "$cmd" >/dev/null; then
+            echo "Error: Required command '$cmd' not found" >&2
+            exit 1
+        fi
+    done
+)
+
+# Test helpers
+fail() (
+    echo -e "${COLOR_ERROR}❌ $1${COLOR_RESET}" >&2
+    exit 1
+)
+
+pass() (
+    echo -e "${COLOR_SUCCESS}✓ $1${COLOR_RESET}"
+)
+
+verify_yaml() (
+    local file="$1"
+    if ! yq eval '.' "$file" >/dev/null 2>&1; then
+        fail "Invalid YAML in $file"
+    fi
+)
+
+get_latest_yaml() (
+    local start_time=$1
+    find "$TEST_DIR" -name "*.yaml" -type f -newer "$start_time" -print0 | \
+        xargs -0 ls -t 2>/dev/null | head -n1
+)
+
+create_timestamp_file() (
+    local tmpfile
+    tmpfile=$(mktemp)
+    touch "$tmpfile"
+    echo "$tmpfile"
+)
+
+# Test cases
+test_basic_command() (
+    local timestamp_file
+    timestamp_file=$(create_timestamp_file)
+    
+    CMDLOG_DIR="$TEST_DIR" cmdlog echo "hello world"
+    local output_file
+    output_file=$(get_latest_yaml "$timestamp_file")
+    rm "$timestamp_file"
+    
+    [[ ! -f "$output_file" ]] && fail "Log file not created"
+    verify_yaml "$output_file"
+    grep -q 'command: "echo '"'"'hello world'"'"'"' "$output_file" || \
+        fail "Command not properly escaped in log"
+    grep -q "exit_code: 0" "$output_file" || \
+        fail "Exit code not captured"
+    
+    pass "Basic command execution and logging"
+)
+
+test_special_chars() (
+    local timestamp_file
+    timestamp_file=$(create_timestamp_file)
+    
+    CMDLOG_DIR="$TEST_DIR" cmdlog echo "quotes 'and' \"stuff\"" '`special`' "\$variables"
+    local output_file
+    output_file=$(get_latest_yaml "$timestamp_file")
+    rm "$timestamp_file"
+    
+    verify_yaml "$output_file"
+    grep -q "exit_code: 0" "$output_file" || \
+        fail "Special characters handling failed"
+    
+    pass "Special character handling"
+)
+
+test_error_handling() (
+    local timestamp_file
+    timestamp_file=$(create_timestamp_file)
+    
+    CMDLOG_DIR="$TEST_DIR" cmdlog nonexistentcommand 2>/dev/null || true
+    local output_file
+    output_file=$(get_latest_yaml "$timestamp_file")
+    rm "$timestamp_file"
+    
+    [[ ! -f "$output_file" ]] && fail "No log file created for failed command"
+    grep -q "exit_code: 127" "$output_file" || \
+        fail "Error exit code not captured"
+    
+    pass "Error condition handling"
+)
+
+test_output_capture() (
+    local timestamp_file
+    timestamp_file=$(create_timestamp_file)
+    
+    CMDLOG_DIR="$TEST_DIR" cmdlog sh -c 'echo "stdout"; echo "stderr" >&2'
+    local output_file
+    output_file=$(get_latest_yaml "$timestamp_file")
+    rm "$timestamp_file"
+    
+    grep -q "stdout" "$output_file" || fail "stdout not captured"
+    grep -q "stderr" "$output_file" || fail "stderr not captured"
+    
+    pass "Output stream capture"
+)
+
+run_test_suite() (
+    echo "Running cmdlog test suite..."
+    echo
+    
+    test_basic_command
+    test_special_chars
+    test_error_handling
+    test_output_capture
+    
+    echo -e "\n${COLOR_SUCCESS}All tests passed!${COLOR_RESET}"
+)
+
+main() (
+    trap cleanup_test_directory EXIT
+    verify_required_commands
+    
+    export CMDLOG_DIR="$TEST_DIR"
+    mkdir -p "$TEST_DIR"
+    
+    run_test_suite
+)
+
+main "$@"

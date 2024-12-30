@@ -1,0 +1,114 @@
+#!/bin/bash
+#
+# cmdlog - Log command execution with timing and output capture
+#
+# Creates a YAML-formatted log of command execution, capturing:
+# - Command string (with proper quoting)
+# - Execution time
+# - Output (stdout and stderr)
+# - Exit code
+# - Timestamp (Unix and ISO8601)
+#
+# The log is stored in $CMDLOG_DIR and optionally converted to markdown
+# in $OBSIDIAN_DIR using yaml-cmd2omd if available.
+#
+# Development platform:
+# ProductName:    macOS
+# ProductVersion: 14.6.1
+# BuildVersion:   23G93
+# Shell:          GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
+# GNU date:       date (GNU coreutils) 9.5
+#
+# Co-authored by Anthropic's Claude 3.5 Sonnet (2024)
+#
+
+set -euo pipefail
+
+# Configuration
+: "${CMDLOG_DIR:=$HOME/cmdlog}"
+: "${OBSIDIAN_DIR:=$HOME/obsidian/commands/records}"
+: "${GDATE_CMD:=gdate}"  # GNU date required for millisecond precision
+
+# Ensure required commands exist
+if ! command -v "$GDATE_CMD" >/dev/null; then
+    echo "Error: $GDATE_CMD not found. GNU date required for timing." >&2
+    exit 1
+fi
+
+format_shell_command() (
+    result=""
+    for arg in "$@"; do
+        [ -n "$result" ] && result+=" "
+        if [[ $arg == *[[:space:]\'\"\\]* ]]; then
+            arg="'${arg//\'/\'\"\'\"\'}'"
+        fi
+        result+="$arg"
+    done
+    echo "$result"
+)
+
+escape_yaml_string() (
+    str=$1
+    str="${str//\\/\\\\}"
+    str="${str//\"/\\\"}"
+    echo "$str"
+)
+
+get_iso8601_timestamp() (
+    timestamp=$1
+    date -r "$timestamp" +"%Y-%m-%dT%H:%M:%S%z" | sed 's/\(..\)$/:\1/'
+)
+
+create_log_entry() (
+    timestamp=$1 logfile=$2
+    shift 2
+    command=("$@")
+    
+    start_time=$("$GDATE_CMD" +%s%3N)
+    output=$("${command[@]}" 2>&1) || exit_code=$?
+    end_time=$("$GDATE_CMD" +%s%3N)
+    
+    echo "$output"
+    
+    duration_ms=$((end_time - start_time))
+    formatted_output=$(echo "$output" | sed 's/^/  /')
+    yaml_command=$(escape_yaml_string "$(format_shell_command "${command[@]}")")
+    iso8601=$(get_iso8601_timestamp "$timestamp")
+
+    cat <<EOF >> "$logfile"
+timestamp: $timestamp
+iso8601: "$iso8601"
+command: "${yaml_command}"
+duration_ms: $duration_ms
+output: |
+${formatted_output}
+exit_code: ${exit_code:-0}
+EOF
+)
+
+ensure_directories() (
+    mkdir -p "$CMDLOG_DIR"
+    mkdir -p "$OBSIDIAN_DIR"
+)
+
+yaml_to_markdown() (
+    logfile=$1 mdfile=$2
+    command -v yaml-cmd2omd >/dev/null && yaml-cmd2omd < "$logfile" > "$mdfile"
+)
+
+main() (
+    if [ $# -eq 0 ]; then
+        echo "Usage: cmdlog <command>" >&2
+        exit 1
+    fi
+
+    timestamp=$(date +%s)
+    logfile="$CMDLOG_DIR/${timestamp}.yaml"
+    mdfile="$OBSIDIAN_DIR/${timestamp}.md"
+
+    ensure_directories
+    create_log_entry "$timestamp" "$logfile" "$@"
+    yaml_to_markdown "$logfile" "$mdfile"
+)
+
+main "$@"
